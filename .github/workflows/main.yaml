@@ -2,7 +2,8 @@ name: Main branch Tests
 
 on:
   push:
-    - main
+    branches:
+      - main
 
 env:
   DATABASE_USERNAME: ${{secrets.DATABASE_USERNAME}}
@@ -14,17 +15,39 @@ env:
 jobs:
   Build-and-Test:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres
+      env:
+        POSTGRES_PASSWORD: ${{secrets.DATABASE_PASSWORD}}
+        POSTGRES_USER: ${{secrets.DATABASE_USERNAME}}
+        POSTGRES_DB: ${{secrets.TEST_DATABASE_NAME}} 
+
+      ports:
+        - 5432:5432
+      # Set health checks to wait until postgres has started
+      options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - name: Git Checkout
         uses: actions/checkout@v4
+
       - name: Installing python
         uses: actions/setup-python@v5
         with:
           python-version: '3.9'
+
       - name: upgrade pip
         run: python -m pip install --upgrade pip
+
       - name: Install all dependencies
-        run: pip install -r requirements.txt && pip install -r requirements-dev.txt
+        run:  |
+          pip install -r requirements.txt 
+          pip install -r requirements-dev.txt
+
       - name: Test with pytest
         run: pytest -v -s
 
