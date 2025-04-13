@@ -7,6 +7,7 @@ on:
 
 jobs:
   Build-and-Test:
+    environment: development
     env:
       DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
       DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
