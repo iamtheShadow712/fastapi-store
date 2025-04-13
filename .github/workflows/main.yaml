@@ -1,0 +1,31 @@
+name: Main branch Tests
+
+on:
+  push:
+    - main
+
+env:
+  DATABASE_USERNAME: ${{secrets.DATABASE_USERNAME}}
+  DATABASE_PASSWORD: ${{secrets.DATABASE_PASSWORD}}
+  DATABASE_NAME: ${{secrets.DATABASE_NAME}}
+  DATABASE_HOSTNAME: ${{secrets.DATABASE_HOSTNAME}}
+  DATABASE_PORT: ${{secrets.DATABASE_PORT}}
+
+jobs:
+  Build-and-Test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Git Checkout
+        uses: actions/checkout@v4
+      - name: Installing python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+      - name: upgrade pip
+        run: python -m pip install --upgrade pip
+      - name: Install all dependencies
+        run: pip install -r requirements.txt && pip install -r requirements-dev.txt
+      - name: Test with pytest
+        run: pytest -v -s
+
+
